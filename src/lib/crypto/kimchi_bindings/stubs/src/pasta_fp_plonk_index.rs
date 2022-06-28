@@ -2,7 +2,8 @@ use crate::{gate_vector::fp::CamlPastaFpPlonkGateVectorPtr, srs::fp::CamlFpSrs};
 use ark_poly::EvaluationDomain;
 use kimchi::circuits::{constraints::ConstraintSystem, gate::CircuitGate};
 use kimchi::{linearization::expr_linearization, prover_index::ProverIndex};
-use mina_curves::pasta::{fp::Fp, pallas::Affine as GAffineOther, vesta::Affine as GAffine};
+use mina_curves::pasta::Fp;
+use mina_curves::pasta::{pallas::Affine as GAffineOther, vesta::Affine as GAffine};
 use serde::{Deserialize, Serialize};
 use std::{
     fs::{File, OpenOptions},
@@ -47,7 +48,7 @@ pub fn caml_pasta_fp_plonk_index_create(
         .map(|gate| CircuitGate::<Fp> {
             typ: gate.typ,
             wires: gate.wires,
-            coeffs: gate.coeffs.clone(),
+            coeffs: gate.coeffs.iter().map(Into::into).collect(),
         })
         .collect();
 
