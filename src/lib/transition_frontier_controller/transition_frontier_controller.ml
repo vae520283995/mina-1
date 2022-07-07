@@ -3,9 +3,10 @@ open Async_kernel
 open Pipe_lib
 open Mina_block
 
-let run ~logger ~trust_system ~verifier ~network ~time_controller
-    ~collected_transitions ~frontier ~network_transition_reader
-    ~producer_transition_reader ~clear_reader ~precomputed_values =
+let run_with_normal_or_super_catchup ~logger ~trust_system ~verifier ~network
+    ~time_controller ~collected_transitions ~frontier ~network_transition_reader
+    ~producer_transition_reader ~clear_reader ~precomputed_values
+    ~verified_transition_writer =
   let valid_transition_pipe_capacity = 50 in
   let start_time = Time.now () in
   let f_drop_head name head valid_cb =
@@ -127,4 +128,24 @@ let run ~logger ~trust_system ~verifier ~network ~time_controller
         [%log error] "Ivar.fill bug is here!" ;
       Ivar.fill clean_up_catchup_scheduler () )
   |> don't_wait_for ;
-  processed_transition_reader
+  Strict_pipe.Reader.iter processed_transition_reader
+    ~f:
+      (Fn.compose Deferred.return
+         (Strict_pipe.Writer.write verified_transition_writer) )
+  |> don't_wait_for
+
+let run ~logger ~trust_system ~verifier ~network ~time_controller
+    ~collected_transitions ~frontier ~network_transition_reader
+    ~producer_transition_reader ~clear_reader ~precomputed_values
+    ~verified_transition_writer =
+  match Transition_frontier.catchup_state frontier with
+  | Hash _ ->
+      run_with_normal_or_super_catchup ~logger ~trust_system ~verifier ~network
+        ~time_controller ~collected_transitions ~frontier
+        ~network_transition_reader ~producer_transition_reader ~clear_reader
+        ~precomputed_values ~verified_transition_writer
+  | Full _ ->
+      run_with_normal_or_super_catchup ~logger ~trust_system ~verifier ~network
+        ~time_controller ~collected_transitions ~frontier
+        ~network_transition_reader ~producer_transition_reader ~clear_reader
+        ~precomputed_values ~verified_transition_writer

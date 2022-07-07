@@ -83,17 +83,11 @@ let start_transition_frontier_controller ~logger ~trust_system ~verifier
   producer_transition_reader_ref := producer_transition_reader ;
   producer_transition_writer_ref := producer_transition_writer ;
   Broadcast_pipe.Writer.write frontier_w (Some frontier) |> don't_wait_for ;
-  let new_verified_transition_reader =
-    Transition_frontier_controller.run ~logger ~trust_system ~verifier ~network
-      ~time_controller ~collected_transitions ~frontier
-      ~network_transition_reader:!transition_reader_ref
-      ~producer_transition_reader ~clear_reader ~precomputed_values
-  in
-  Strict_pipe.Reader.iter new_verified_transition_reader
-    ~f:
-      (Fn.compose Deferred.return
-         (Strict_pipe.Writer.write verified_transition_writer) )
-  |> don't_wait_for
+  Transition_frontier_controller.run ~logger ~trust_system ~verifier ~network
+    ~time_controller ~collected_transitions ~frontier
+    ~network_transition_reader:!transition_reader_ref
+    ~producer_transition_reader ~clear_reader ~precomputed_values
+    ~verified_transition_writer
 
 let start_bootstrap_controller ~logger ~trust_system ~verifier ~network
     ~time_controller ~producer_transition_reader_ref
