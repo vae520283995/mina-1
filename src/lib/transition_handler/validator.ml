@@ -7,7 +7,7 @@ open Cache_lib
 open Mina_block
 open Network_peer
 
-let validate_transition ~consensus_constants ~logger ~frontier
+let verify_transition_is_relevant ~consensus_constants ~logger ~frontier
     ~unprocessed_transition_cache enveloped_transition =
   let open Result.Let_syntax in
   let transition =
@@ -69,7 +69,7 @@ let run ~logger ~consensus_constants ~trust_system ~time_controller ~frontier
           let transition = With_hash.data transition_with_hash in
           let sender = Envelope.Incoming.sender transition_env in
           match
-            validate_transition ~consensus_constants ~logger ~frontier
+            verify_transition_is_relevant ~consensus_constants ~logger ~frontier
               ~unprocessed_transition_cache transition_env
           with
           | Ok cached_transition ->
@@ -95,6 +95,8 @@ let run ~logger ~consensus_constants ~trust_system ~time_controller ~frontier
               Writer.write valid_transition_writer
                 (`Block cached_transition, `Valid_cb vc)
           | Error (`In_frontier _) | Error (`In_process _) ->
+              (* Send_old_gossip isn't necessary true, there is a possibility of race condition when the
+                 process retrieved the transition via catchup mechanism slightly before the gossip reached *)
               Trust_system.record_envelope_sender trust_system logger sender
                 ( Trust_system.Actions.Sent_old_gossip
                 , Some

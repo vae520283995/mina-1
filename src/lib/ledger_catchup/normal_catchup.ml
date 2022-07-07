@@ -65,7 +65,7 @@ let verify_transition ~logger ~consensus_constants ~trust_system ~frontier
       Envelope.Incoming.map enveloped_transition
         ~f:(Fn.const initially_validated_transition)
     in
-    Transition_handler.Validator.validate_transition ~logger ~frontier
+    Transition_handler.Validator.verify_transition_is_relevant ~logger ~frontier
       ~consensus_constants ~unprocessed_transition_cache
       enveloped_initially_validated_transition
   in
