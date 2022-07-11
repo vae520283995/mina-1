@@ -94,7 +94,7 @@ module "diverse" {
   watchdog_image     = "gcr.io/o1labs-192920/watchdog:0.4.3"
   use_embedded_runtime_config = true
 
-  archive_node_count  = 3
+  archive_node_count  = 1
   mina_archive_schema = "create_schema.sql"
   mina_archive_schema_aux_files = ["https://raw.githubusercontent.com/MinaProtocol/mina/develop/src/app/archive/create_schema.sql", "https://raw.githubusercontent.com/MinaProtocol/mina/develop/src/app/archive/zkapp_tables.sql"]
 
@@ -104,21 +104,8 @@ module "diverse" {
       enableLocalDaemon = true
       enablePostgresDB  = true
       postgresHost      = "archive-1-postgresql"
-    },
-    {
-      name = "archive-2"
-      enableLocalDaemon = false
-      enablePostgresDB  = false
-      postgresHost      = "archive-1-postgresql"
-    },
-    {
-      name = "archive-3"
-      enableLocalDaemon = false
-      enablePostgresDB  = true
-      postgresHost      = "archive-3-postgresql"
     }
   ]
-
 
   mina_faucet_amount = "10000000000"
   mina_faucet_fee    = "100000000"
@@ -140,7 +127,7 @@ module "diverse" {
 
   snark_coordinators = [
     {
-      snark_worker_replicas = 5
+      snark_worker_replicas = 2
       snark_worker_fee      = "0.01"
       snark_worker_public_key = "B62qmQsEHcsPUs5xdtHKjEmWqqhUPRSF2GNmdguqnNvpEZpKftPC69e"
       snark_coordinators_host_port = 10401
