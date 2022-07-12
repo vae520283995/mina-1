@@ -33,6 +33,8 @@ in {
   sodium-static =
     pkgs.libsodium.overrideAttrs (o: { dontDisableStatic = true; });
 
+  vend = pkgs.callPackage ./vend { };
+
   rocksdb = (prev.rocksdb.override {
     snappy = null;
     lz4 = null;
@@ -146,6 +148,11 @@ in {
       # remove libp2p_ipc from go.mod, inject it back in postconfigure
       postConfigure = ''
         sed -i 's/.*libp2p_ipc.*//' go.mod
+      '';
+
+      postBuild = ''
+        rm vendor -rf
+        ${pkgs.vend}/bin/vend
       '';
     };
     postConfigure = ''
