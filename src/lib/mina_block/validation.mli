@@ -16,6 +16,8 @@ include module type of Validation_types
 val validation :
   ('a, 'b, 'c, 'd, 'e, 'f, 'g) with_block -> ('a, 'b, 'c, 'd, 'e, 'f, 'g) t
 
+val header_with_hash : _ with_header -> Header.with_hash
+
 val block_with_hash : _ with_block -> Block.with_hash
 
 val block : _ with_block -> Block.t

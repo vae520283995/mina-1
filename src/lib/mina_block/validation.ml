@@ -14,6 +14,8 @@ include Validation_types
 
 let validation (_, v) = v
 
+let header_with_hash (b, _) = b
+
 let block_with_hash (b, _) = b
 
 let block (b, _) = With_hash.data b

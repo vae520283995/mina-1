@@ -4,8 +4,7 @@ val run :
   -> verifier:Verifier.t
   -> network:Mina_networking.t
   -> time_controller:Block_time.Controller.t
-  -> collected_transitions:
-       Mina_block.initial_valid_block Network_peer.Envelope.Incoming.t list
+  -> collected_transitions:Bootstrap_controller.Transition_cache.element list
   -> frontier:Transition_frontier.t
   -> network_transition_reader:
        ( [< `Block of
