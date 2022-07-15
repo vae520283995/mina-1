@@ -5,8 +5,12 @@ open Pipe_lib.Strict_pipe
 open Mina_base
 open Mina_state
 
+type block_or_header =
+  [ `Block of Mina_block.t Envelope.Incoming.t
+  | `Header of Mina_block.Header.t Envelope.Incoming.t ]
+
 type stream_msg =
-  [ `Transition of Mina_block.t Envelope.Incoming.t ]
+  block_or_header
   * [ `Time_received of Block_time.t ]
   * [ `Valid_cb of Mina_net2.Validation_callback.t ]
 
@@ -35,7 +39,7 @@ type Structured_log_events.t +=
   | Block_received of { state_hash : State_hash.t; sender : Envelope.Sender.t }
   [@@deriving register_event { msg = "Received a block from $sender" }]
 
-let push sink (`Transition e, `Time_received tm, `Valid_cb cb) =
+let push sink (b_or_h, `Time_received tm, `Valid_cb cb) =
   match sink with
   | Void ->
       Deferred.unit
@@ -52,7 +56,14 @@ let push sink (`Transition e, `Time_received tm, `Valid_cb cb) =
       @@ fun () ->
       let%bind () = on_push () in
       Mina_metrics.(Counter.inc_one Network.gossip_messages_received) ;
-      let state = Envelope.Incoming.data e in
+      let sender, header =
+        match b_or_h with
+        | `Block b_env ->
+            ( Envelope.Incoming.sender b_env
+            , Mina_block.header (Envelope.Incoming.data b_env) )
+        | `Header h_env ->
+            (Envelope.Incoming.sender h_env, Envelope.Incoming.data h_env)
+      in
       let processing_start_time = Block_time.(now time_controller |> to_time) in
       don't_wait_for
         ( match%map Mina_net2.Validation_callback.await cb with
@@ -69,25 +80,31 @@ let push sink (`Transition e, `Time_received tm, `Valid_cb cb) =
       Perf_histograms.add_span ~name:"external_transition_latency"
         (Core.Time.abs_diff
            Block_time.(now time_controller |> to_time)
-           Mina_block.(
-             header state |> Header.protocol_state
-             |> Protocol_state.blockchain_state |> Blockchain_state.timestamp
-             |> Block_time.to_time) ) ;
+           ( Mina_block.Header.protocol_state header
+           |> Protocol_state.blockchain_state |> Blockchain_state.timestamp
+           |> Block_time.to_time ) ) ;
       Mina_metrics.(Gauge.inc_one Network.new_state_received) ;
-      if log_gossip_heard then
-        [%str_log info]
-          ~metadata:[ ("external_transition", Mina_block.to_yojson state) ]
+      ( if log_gossip_heard then
+        let metadata =
+          match b_or_h with
+          | `Block b_env ->
+              [ ("block", Mina_block.to_yojson @@ Envelope.Incoming.data b_env)
+              ]
+          | `Header h_env ->
+              [ ( "header"
+                , Mina_block.Header.to_yojson @@ Envelope.Incoming.data h_env )
+              ]
+        in
+        [%str_log info] ~metadata
           (Block_received
              { state_hash =
-                 Mina_block.(
-                   header state |> Header.protocol_state
-                   |> Protocol_state.hashes)
+                 ( Mina_block.Header.protocol_state header
+                 |> Protocol_state.hashes )
                    .state_hash
-             ; sender = Envelope.Incoming.sender e
-             } ) ;
+             ; sender
+             } ) ) ;
       Mina_net2.Validation_callback.set_message_type cb `Block ;
       Mina_metrics.(Counter.inc_one Network.Block.received) ;
-      let sender = Envelope.Incoming.sender e in
       let%bind () =
         match
           Network_pool.Rate_limiter.add rate_limiter sender ~now:(Time.now ())
@@ -100,7 +117,7 @@ let push sink (`Transition e, `Time_received tm, `Valid_cb cb) =
             Mina_net2.Validation_callback.fire_if_not_already_fired cb `Reject ;
             Deferred.unit
         | `Within_capacity ->
-            Writer.write writer (`Transition e, `Time_received tm, `Valid_cb cb)
+            Writer.write writer (b_or_h, `Time_received tm, `Valid_cb cb)
       in
       let lift_consensus_time =
         Fn.compose Unsigned.UInt32.to_int
@@ -108,8 +125,8 @@ let push sink (`Transition e, `Time_received tm, `Valid_cb cb) =
       in
       let tn_production_consensus_time =
         Consensus.Data.Consensus_state.consensus_time
-        @@ Protocol_state.consensus_state @@ Mina_block.Header.protocol_state
-        @@ Mina_block.header (Envelope.Incoming.data e)
+        @@ Protocol_state.consensus_state
+        @@ Mina_block.Header.protocol_state header
       in
       let tn_production_slot =
         lift_consensus_time tn_production_consensus_time

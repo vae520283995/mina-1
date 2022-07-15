@@ -37,3 +37,5 @@ type protocol_version_status =
   { valid_current : bool; valid_next : bool; matches_daemon : bool }
 
 val protocol_version_status : t -> protocol_version_status
+
+val blockchain_length : t -> Unsigned.uint32

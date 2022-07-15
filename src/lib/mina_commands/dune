@@ -48,6 +48,7 @@
    pickles
    random_oracle
    transition_frontier_base
+   integers
  )
  (instrumentation (backend bisect_ppx))
  (preprocess (pps ppx_coda ppx_version ppx_jane ppx_compare)))

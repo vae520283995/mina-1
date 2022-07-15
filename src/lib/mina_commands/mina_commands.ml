@@ -302,7 +302,8 @@ let get_status ~flag t =
   in
   let new_block_length_received =
     let open Mina_block in
-    Length.to_int @@ Mina_block.blockchain_length @@ Validation.block
+    Unsigned.UInt32.to_int @@ Mina_block.Header.blockchain_length
+    @@ Validation.header
     @@ Pipe_lib.Broadcast_pipe.Reader.peek
          (Mina_lib.most_recent_valid_transition t)
   in
