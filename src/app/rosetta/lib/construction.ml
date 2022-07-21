@@ -324,11 +324,7 @@ module Metadata = struct
         | Some account ->
             M.return account
       in
-      let nonce =
-        Option.map
-          ~f:(fun nonce -> Unsigned.UInt32.of_string nonce)
-          account.nonce
-        |> Option.value ~default:Unsigned.UInt32.zero
+      let nonce = Option.value ~default:Unsigned.UInt32.zero account.nonce
       in
       (* suggested fee *)
       (* Take the median of all the fees in blocks and add a bit extra using

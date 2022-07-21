@@ -16,7 +16,7 @@ module Get_coinbase_and_genesis =
           date @ppxCustom(module: "Serializing.String")
         }
       }
-      stateHash
+      stateHash @ppxCustom(module: "Serializing.String")
     }
     daemonStatus {
       chainId

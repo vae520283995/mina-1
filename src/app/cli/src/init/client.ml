@@ -1141,7 +1141,6 @@ let pooled_user_commands =
 
 let to_signed_fee_exn sign magnitude =
   let sgn = match sign with `PLUS -> Sgn.Pos | `MINUS -> Neg in
-  let magnitude = Currency.Fee.of_uint64 magnitude in
   Currency.Fee.Signed.create ~sgn ~magnitude
 
 let pending_snark_work =
@@ -1163,18 +1162,13 @@ let pending_snark_work =
                     ~f:(fun bundle ->
                       Array.map bundle.workBundle ~f:(fun w ->
                           let f = w.fee_excess in
-                          let hash_of_string =
-                            Mina_base.Frozen_ledger_hash.of_base58_check_exn
-                          in
                           { Cli_lib.Graphql_types.Pending_snark_work.Work
                             .work_id = w.work_id
                           ; fee_excess =
                               to_signed_fee_exn f.sign f.fee_magnitude
                           ; supply_increase = w.supply_increase
-                          ; source_ledger_hash =
-                              hash_of_string w.source_ledger_hash
-                          ; target_ledger_hash =
-                              hash_of_string w.target_ledger_hash
+                          ; source_ledger_hash = w.source_ledger_hash
+                          ; target_ledger_hash = w.target_ledger_hash
                           } ) )
                     response.pendingSnarkWork )
              in

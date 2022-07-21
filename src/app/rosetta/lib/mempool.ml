@@ -29,7 +29,7 @@ module Get_transactions_by_hash =
         fee @ppxCustom(module: "Scalars.UInt64")
         kind
         feeToken @ppxCustom(module: "Scalars.UInt64")
-        validUntil
+        validUntil @ppxCustom(module: "Scalars.UInt32")
         memo
         feePayer {
           publicKey @ppxCustom(module: "Scalars.JSON")

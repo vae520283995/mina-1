@@ -219,7 +219,7 @@ module Node = struct
     {|
       query ($max_length: Int) @encoders(module: "Encoders"){
         bestChain (maxLength: $max_length) {
-          stateHash
+          stateHash @ppxCustom(module: "Graphql_lib.Scalars.STRING")
           commandTransactionCount
           creatorAccount {
             publicKey @ppxCustom(module: "Graphql_lib.Scalars.JSON")
@@ -386,9 +386,8 @@ module Node = struct
     | Some acc ->
         return
           { nonce =
-              acc.nonce
-              |> Option.value_exn ~message:"the nonce from get_balance is None"
-              |> Unsigned.UInt32.of_string
+              Option.value_exn ~message:"the nonce from get_balance is None"
+                acc.nonce
           ; total_balance = acc.balance.total
           }
 

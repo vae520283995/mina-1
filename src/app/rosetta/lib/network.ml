@@ -1,13 +1,14 @@
 module Serializing = Graphql_lib.Serializing
+module Scalars = Graphql_lib.Scalars
 module Get_status =
 [%graphql
 {|
   query {
     genesisBlock {
-      stateHash
-    }
+      stateHash @ppxCustom(module: "Scalars.STRING")
+   }
     bestChain(maxLength: 1) {
-      stateHash
+      stateHash @ppxCustom(module: "Scalars.STRING")
       protocolState {
         blockchainState {
           utcDate @ppxCustom(module: "Serializing.Int64")

@@ -10,7 +10,6 @@ open Bitstring_lib
 open Num_util
 module Time = Block_time
 module Run = Snark_params.Tick.Run
-module Graphql_base_types = Graphql_lib.Base_types
 module Length = Mina_numbers.Length
 
 let make_checked t =
@@ -655,15 +654,14 @@ module Data = struct
       let open Graphql_async in
       let open Schema in
       obj "epochLedger" ~fields:(fun _ ->
-          [ field "hash" ~typ:(non_null string)
+          [ field "hash"
+              ~typ:(non_null @@ Mina_base_unix.Graphql_scalars.LedgerHash.typ ())
               ~args:Arg.[]
-              ~resolve:(fun _ { Poly.hash; _ } ->
-                Mina_base.Frozen_ledger_hash.to_base58_check hash )
+              ~resolve:(fun _ { Poly.hash; _ } -> hash)
           ; field "totalCurrency"
-              ~typ:(non_null @@ Graphql_base_types.uint64 ())
+              ~typ:(non_null @@ Currency_unix.Graphql_scalars.Amount.typ ())
               ~args:Arg.[]
-              ~resolve:(fun _ { Poly.total_currency; _ } ->
-                Amount.to_uint64 total_currency )
+              ~resolve:(fun _ { Poly.total_currency; _ } -> total_currency)
           ] )
   end
 
@@ -952,24 +950,26 @@ module Data = struct
                 ~typ:(non_null @@ Epoch_ledger.graphql_type ())
                 ~args:Arg.[]
                 ~resolve:(fun _ { Poly.ledger; _ } -> ledger)
-            ; field "seed" ~typ:(non_null string)
+            ; field "seed"
+                ~typ:
+                  (non_null @@ Mina_base_unix.Graphql_scalars.EpochSeed.typ ())
                 ~args:Arg.[]
-                ~resolve:(fun _ { Poly.seed; _ } ->
-                  Epoch_seed.to_base58_check seed )
-            ; field "startCheckpoint" ~typ:(non_null string)
+                ~resolve:(fun _ { Poly.seed; _ } -> seed)
+            ; field "startCheckpoint"
+                ~typ:
+                  (non_null @@ Mina_base_unix.Graphql_scalars.StateHash.typ ())
                 ~args:Arg.[]
-                ~resolve:(fun _ { Poly.start_checkpoint; _ } ->
-                  Mina_base.State_hash.to_base58_check start_checkpoint )
+                ~resolve:(fun _ { Poly.start_checkpoint; _ } -> start_checkpoint)
             ; field "lockCheckpoint"
                 ~typ:(Lock_checkpoint.graphql_type ())
                 ~args:Arg.[]
                 ~resolve:(fun _ { Poly.lock_checkpoint; _ } ->
                   Lock_checkpoint.resolve lock_checkpoint )
             ; field "epochLength"
-                ~typ:(non_null @@ Graphql_base_types.uint32 ())
+                ~typ:
+                  (non_null @@ Mina_numbers_unix.Graphql_scalars.Length.typ ())
                 ~args:Arg.[]
-                ~resolve:(fun _ { Poly.epoch_length; _ } ->
-                  Mina_numbers.Length.to_uint32 epoch_length )
+                ~resolve:(fun _ { Poly.epoch_length; _ } -> epoch_length)
             ] )
 
       let to_input
@@ -2385,39 +2385,34 @@ module Data = struct
     let graphql_type () : ('ctx, Value.t option) Graphql_async.Schema.typ =
       let open Graphql_async in
       let open Schema in
-      let uint32, uint64 =
-        (Graphql_base_types.uint32 (), Graphql_base_types.uint64 ())
-      in
+      let length = Mina_numbers_unix.Graphql_scalars.Length.typ () in
+      let amount = Currency_unix.Graphql_scalars.Amount.typ () in
       obj "ConsensusState" ~fields:(fun _ ->
-          [ field "blockchainLength" ~typ:(non_null uint32)
+          [ field "blockchainLength" ~typ:(non_null length)
               ~doc:"Length of the blockchain at this block"
               ~deprecated:(Deprecated (Some "use blockHeight instead"))
               ~args:Arg.[]
-              ~resolve:(fun _ { Poly.blockchain_length; _ } ->
-                Mina_numbers.Length.to_uint32 blockchain_length )
-          ; field "blockHeight" ~typ:(non_null uint32)
+              ~resolve:(fun _ { Poly.blockchain_length; _ } -> blockchain_length)
+          ; field "blockHeight" ~typ:(non_null length)
               ~doc:"Height of the blockchain at this block"
               ~args:Arg.[]
-              ~resolve:(fun _ { Poly.blockchain_length; _ } ->
-                Mina_numbers.Length.to_uint32 blockchain_length )
-          ; field "epochCount" ~typ:(non_null uint32)
+              ~resolve:(fun _ { Poly.blockchain_length; _ } -> blockchain_length)
+          ; field "epochCount" ~typ:(non_null length)
               ~args:Arg.[]
-              ~resolve:(fun _ { Poly.epoch_count; _ } ->
-                Mina_numbers.Length.to_uint32 epoch_count )
-          ; field "minWindowDensity" ~typ:(non_null uint32)
+              ~resolve:(fun _ { Poly.epoch_count; _ } -> epoch_count)
+          ; field "minWindowDensity" ~typ:(non_null length)
               ~args:Arg.[]
               ~resolve:(fun _ { Poly.min_window_density; _ } ->
-                Mina_numbers.Length.to_uint32 min_window_density )
+                min_window_density )
           ; field "lastVrfOutput" ~typ:(non_null string)
               ~args:Arg.[]
               ~resolve:(fun (_ : 'ctx resolve_info) { Poly.last_vrf_output; _ } ->
                 Vrf.Output.Truncated.to_base58_check last_vrf_output )
           ; field "totalCurrency"
               ~doc:"Total currency in circulation at this block"
-              ~typ:(non_null uint64)
+              ~typ:(non_null amount)
               ~args:Arg.[]
-              ~resolve:(fun _ { Poly.total_currency; _ } ->
-                Amount.to_uint64 total_currency )
+              ~resolve:(fun _ { Poly.total_currency; _ } -> total_currency)
           ; field "stakingEpochData"
               ~typ:
                 (non_null @@ Epoch_data.Staking.graphql_type "StakingEpochData")
@@ -2435,18 +2430,19 @@ module Data = struct
               ~resolve:(fun _ { Poly.has_ancestor_in_same_checkpoint_window; _ } ->
                 has_ancestor_in_same_checkpoint_window )
           ; field "slot" ~doc:"Slot in which this block was created"
-              ~typ:(non_null uint32)
+              ~typ:(non_null @@ Graphql_scalars.Slot.typ ())
               ~args:Arg.[]
               ~resolve:(fun _ { Poly.curr_global_slot; _ } ->
                 Global_slot.slot curr_global_slot )
           ; field "slotSinceGenesis"
               ~doc:"Slot since genesis (across all hard-forks)"
-              ~typ:(non_null uint32)
+              ~typ:
+                (non_null @@ Mina_numbers_unix.Graphql_scalars.GlobalSlot.typ ())
               ~args:Arg.[]
               ~resolve:(fun _ { Poly.global_slot_since_genesis; _ } ->
                 global_slot_since_genesis )
           ; field "epoch" ~doc:"Epoch in which this block was created"
-              ~typ:(non_null uint32)
+              ~typ:(non_null @@ Graphql_scalars.Epoch.typ ())
               ~args:Arg.[]
               ~resolve:(fun _ { Poly.curr_global_slot; _ } ->
                 Global_slot.epoch curr_global_slot )
