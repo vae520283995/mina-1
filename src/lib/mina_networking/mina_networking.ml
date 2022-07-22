@@ -82,7 +82,7 @@ module Rpcs = struct
       include Master
     end)
 
-    module V1 = struct
+    (* module V1 = struct
       module T = struct
         type query = unit [@@deriving bin_io, version { rpc }]
 
@@ -108,7 +108,7 @@ module Rpcs = struct
 
       include T'
       include Register (T')
-    end
+    end*)
   end
 
   module Get_staged_ledger_aux_and_pending_coinbases_at_hash = struct
@@ -156,7 +156,7 @@ module Rpcs = struct
       include Master
     end)
 
-    module V2 = struct
+    (* module V2 = struct
       module T = struct
         type query = State_hash.Stable.V1.t [@@deriving bin_io, version { rpc }]
 
@@ -187,7 +187,7 @@ module Rpcs = struct
 
       include T'
       include Register (T')
-    end
+    end*)
   end
 
   module Answer_sync_ledger_query = struct
@@ -225,7 +225,7 @@ module Rpcs = struct
       include Master
     end)
 
-    module V2 = struct
+    (* module V2 = struct
       module T = struct
         type query = Ledger_hash.Stable.V1.t * Sync_ledger.Query.Stable.V1.t
         [@@deriving bin_io, sexp, version { rpc }]
@@ -252,7 +252,7 @@ module Rpcs = struct
 
       include T'
       include Register (T')
-    end
+    end*)
   end
 
   module Get_transition_chain = struct
@@ -290,7 +290,7 @@ module Rpcs = struct
       include Master
     end)
 
-    module V2 = struct
+    (* module V2 = struct
       module T = struct
         type query = State_hash.Stable.V1.t list
         [@@deriving bin_io, sexp, version { rpc }]
@@ -317,7 +317,7 @@ module Rpcs = struct
 
       include T'
       include Register (T')
-    end
+    end*)
   end
 
   module Get_transition_chain_proof = struct
@@ -355,7 +355,7 @@ module Rpcs = struct
       include Master
     end)
 
-    module V1 = struct
+    (* module V1 = struct
       module T = struct
         type query = State_hash.Stable.V1.t
         [@@deriving bin_io, sexp, version { rpc }]
@@ -383,7 +383,7 @@ module Rpcs = struct
 
       include T'
       include Register (T')
-    end
+    end *)
   end
 
   module Get_transition_knowledge = struct
@@ -421,7 +421,7 @@ module Rpcs = struct
       include Master
     end)
 
-    module V1 = struct
+    (* module V1 = struct
       module T = struct
         type query = unit [@@deriving bin_io, sexp, version { rpc }]
 
@@ -447,7 +447,7 @@ module Rpcs = struct
 
       include T'
       include Register (T')
-    end
+    end*)
   end
 
   module Get_ancestry = struct
@@ -491,7 +491,7 @@ module Rpcs = struct
       include Master
     end)
 
-    module V2 = struct
+    (* module V2 = struct
       module T = struct
         type query =
           ( Consensus.Data.Consensus_state.Value.Stable.V1.t
@@ -525,7 +525,7 @@ module Rpcs = struct
 
       include T'
       include Register (T')
-    end
+    end *)
   end
 
   module Ban_notify = struct
@@ -563,7 +563,7 @@ module Rpcs = struct
       include Master
     end)
 
-    module V1 = struct
+    (* module V1 = struct
       module T = struct
         type query = Core.Time.Stable.V1.t
         [@@deriving bin_io, sexp, version { rpc }]
@@ -589,7 +589,7 @@ module Rpcs = struct
 
       include T'
       include Register (T')
-    end
+    end *)
   end
 
   module Get_best_tip = struct
@@ -630,7 +630,7 @@ module Rpcs = struct
       include Master
     end)
 
-    module V2 = struct
+    (* module V2 = struct
       module T = struct
         type query = unit [@@deriving bin_io, sexp, version { rpc }]
 
@@ -660,7 +660,7 @@ module Rpcs = struct
 
       include T'
       include Register (T')
-    end
+    end *)
   end
 
   module Get_node_status = struct
@@ -702,7 +702,7 @@ module Rpcs = struct
           let to_latest = Fn.id
         end
 
-        module V1 = struct
+        (* module V1 = struct
           type t =
             { node_ip_addr : Core.Unix.Inet_addr.Stable.V1.t
                   [@to_yojson
@@ -747,7 +747,7 @@ module Rpcs = struct
             ; uptime_minutes = status.uptime_minutes
             ; block_height_opt = None
             }
-        end
+        end*)
       end]
     end
 
@@ -791,7 +791,7 @@ module Rpcs = struct
       include Master
     end)
 
-    module V2 = struct
+    (* module V2 = struct
       module T = struct
         type query = unit [@@deriving bin_io, sexp, version { rpc }]
 
@@ -817,9 +817,9 @@ module Rpcs = struct
 
       include T'
       include Register (T')
-    end
+    end *)
 
-    module V1 = struct
+   (* module V1 = struct
       module T = struct
         type query = unit [@@deriving bin_io, sexp, version { rpc }]
 
@@ -865,7 +865,7 @@ module Rpcs = struct
 
       include T'
       include Register (T')
-    end
+    end *)
   end
 
   type ('query, 'response) rpc =

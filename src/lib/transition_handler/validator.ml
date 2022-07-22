@@ -58,7 +58,7 @@ let run ~logger ~consensus_constants ~trust_system ~time_controller ~frontier
        , drop_head buffered
        , unit )
        Writer.t ) ~unprocessed_transition_cache =
-  let module Lru = Core_extended_cache.Lru in
+  (* let module Lru = Core_extended_cache.Lru in *)
   O1trace.background_thread "validate_blocks_against_frontier" (fun () ->
       Reader.iter transition_reader
         ~f:(fun (`Block transition_env, `Valid_cb vc) ->

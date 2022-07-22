@@ -47,7 +47,7 @@ module Common = struct
         [@@deriving compare, equal, sexp, hash, yojson, hlist]
       end
 
-      module V1 = struct
+      (* module V1 = struct
         type ('fee, 'public_key, 'token_id, 'nonce, 'global_slot, 'memo) t =
           { fee : 'fee
           ; fee_token : 'token_id
@@ -57,7 +57,7 @@ module Common = struct
           ; memo : 'memo
           }
         [@@deriving compare, equal, sexp, hash, yojson, hlist]
-      end
+      end*)
     end]
   end
 
@@ -183,7 +183,7 @@ module Body = struct
     end
   end]
 
-  module Tag = Transaction_union_tag
+  (* module Tag = Transaction_union_tag *)
 
   let gen ?source_pk ~max_amount =
     let open Quickcheck.Generator in
