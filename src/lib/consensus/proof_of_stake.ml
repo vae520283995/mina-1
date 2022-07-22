@@ -8,7 +8,6 @@ open Signature_lib
 open Snark_params
 open Num_util
 module Time = Block_time
-(* module Run = Snark_params.Tick.Run *)
 module Graphql_base_types = Graphql_lib.Base_types
 module Length = Mina_numbers.Length
 
@@ -884,18 +883,6 @@ module Data = struct
       in
       go None delegators
   end
-
-(*  module Optional_state_hash = struct
-    [%%versioned
-    module Stable = struct
-      module V1 = struct
-        type t = Mina_base.State_hash.Stable.V1.t option
-        [@@deriving sexp, compare, hash, to_yojson]
-
-        let to_latest = Fn.id
-      end
-    end]
-  end *)
 
   module Epoch_data = struct
     include Mina_base.Epoch_data
@@ -2523,38 +2510,6 @@ module Hooks = struct
         include M
         include Master
       end)
-
-      (* module V2 = struct
-        module T = struct
-          type query = Mina_base.Ledger_hash.Stable.V1.t
-          [@@deriving bin_io, version { rpc }]
-
-          type response =
-            ( Mina_ledger.Sparse_ledger.Stable.V2.t
-            , string )
-            Core_kernel.Result.Stable.V1.t
-          [@@deriving bin_io, version { rpc }]
-
-          let query_of_caller_model = Fn.id
-
-          let callee_model_of_query = Fn.id
-
-          let response_of_callee_model = Fn.id
-
-          let caller_model_of_response = Fn.id
-        end
-
-        module T' =
-          Perf_histograms.Rpc.Plain.Decorate_bin_io
-            (struct
-              include M
-              include Master
-            end)
-            (T)
-
-        include T'
-        include Register (T')
-      end*)
 
       let implementation ~logger ~local_state ~genesis_ledger_hash conn
           ~version:_ ledger_hash =

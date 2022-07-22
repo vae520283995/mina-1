@@ -81,34 +81,6 @@ module Rpcs = struct
       include M
       include Master
     end)
-
-    (* module V1 = struct
-      module T = struct
-        type query = unit [@@deriving bin_io, version { rpc }]
-
-        type response = Network_peer.Peer.Stable.V1.t list
-        [@@deriving bin_io, version { rpc }]
-
-        let query_of_caller_model = Fn.id
-
-        let callee_model_of_query = Fn.id
-
-        let response_of_callee_model = Fn.id
-
-        let caller_model_of_response = Fn.id
-      end
-
-      module T' =
-        Perf_histograms.Rpc.Plain.Decorate_bin_io
-          (struct
-            include M
-            include Master
-          end)
-          (T)
-
-      include T'
-      include Register (T')
-    end*)
   end
 
   module Get_staged_ledger_aux_and_pending_coinbases_at_hash = struct
@@ -155,39 +127,6 @@ module Rpcs = struct
       include M
       include Master
     end)
-
-    (* module V2 = struct
-      module T = struct
-        type query = State_hash.Stable.V1.t [@@deriving bin_io, version { rpc }]
-
-        type response =
-          ( Staged_ledger.Scan_state.Stable.V2.t
-          * Ledger_hash.Stable.V1.t
-          * Pending_coinbase.Stable.V2.t
-          * Mina_state.Protocol_state.Value.Stable.V2.t list )
-          option
-        [@@deriving bin_io, version { rpc }]
-
-        let query_of_caller_model = Fn.id
-
-        let callee_model_of_query = Fn.id
-
-        let response_of_callee_model = Fn.id
-
-        let caller_model_of_response = Fn.id
-      end
-
-      module T' =
-        Perf_histograms.Rpc.Plain.Decorate_bin_io
-          (struct
-            include M
-            include Master
-          end)
-          (T)
-
-      include T'
-      include Register (T')
-    end*)
   end
 
   module Answer_sync_ledger_query = struct
@@ -224,35 +163,6 @@ module Rpcs = struct
       include M
       include Master
     end)
-
-    (* module V2 = struct
-      module T = struct
-        type query = Ledger_hash.Stable.V1.t * Sync_ledger.Query.Stable.V1.t
-        [@@deriving bin_io, sexp, version { rpc }]
-
-        type response = Sync_ledger.Answer.Stable.V2.t Core.Or_error.Stable.V1.t
-        [@@deriving bin_io, sexp, version { rpc }]
-
-        let query_of_caller_model = Fn.id
-
-        let callee_model_of_query = Fn.id
-
-        let response_of_callee_model = Fn.id
-
-        let caller_model_of_response = Fn.id
-      end
-
-      module T' =
-        Perf_histograms.Rpc.Plain.Decorate_bin_io
-          (struct
-            include M
-            include Master
-          end)
-          (T)
-
-      include T'
-      include Register (T')
-    end*)
   end
 
   module Get_transition_chain = struct
@@ -289,35 +199,6 @@ module Rpcs = struct
       include M
       include Master
     end)
-
-    (* module V2 = struct
-      module T = struct
-        type query = State_hash.Stable.V1.t list
-        [@@deriving bin_io, sexp, version { rpc }]
-
-        type response = Mina_block.Stable.V2.t list option
-        [@@deriving bin_io, version { rpc }]
-
-        let query_of_caller_model = Fn.id
-
-        let callee_model_of_query = Fn.id
-
-        let response_of_callee_model = ident
-
-        let caller_model_of_response = ident
-      end
-
-      module T' =
-        Perf_histograms.Rpc.Plain.Decorate_bin_io
-          (struct
-            include M
-            include Master
-          end)
-          (T)
-
-      include T'
-      include Register (T')
-    end*)
   end
 
   module Get_transition_chain_proof = struct
@@ -354,36 +235,6 @@ module Rpcs = struct
       include M
       include Master
     end)
-
-    (* module V1 = struct
-      module T = struct
-        type query = State_hash.Stable.V1.t
-        [@@deriving bin_io, sexp, version { rpc }]
-
-        type response =
-          (State_hash.Stable.V1.t * State_body_hash.Stable.V1.t list) option
-        [@@deriving bin_io, version { rpc }]
-
-        let query_of_caller_model = Fn.id
-
-        let callee_model_of_query = Fn.id
-
-        let response_of_callee_model = Fn.id
-
-        let caller_model_of_response = Fn.id
-      end
-
-      module T' =
-        Perf_histograms.Rpc.Plain.Decorate_bin_io
-          (struct
-            include M
-            include Master
-          end)
-          (T)
-
-      include T'
-      include Register (T')
-    end *)
   end
 
   module Get_transition_knowledge = struct
@@ -420,34 +271,6 @@ module Rpcs = struct
       include M
       include Master
     end)
-
-    (* module V1 = struct
-      module T = struct
-        type query = unit [@@deriving bin_io, sexp, version { rpc }]
-
-        type response = State_hash.Stable.V1.t list
-        [@@deriving bin_io, version { rpc }]
-
-        let query_of_caller_model = Fn.id
-
-        let callee_model_of_query = Fn.id
-
-        let response_of_callee_model = Fn.id
-
-        let caller_model_of_response = Fn.id
-      end
-
-      module T' =
-        Perf_histograms.Rpc.Plain.Decorate_bin_io
-          (struct
-            include M
-            include Master
-          end)
-          (T)
-
-      include T'
-      include Register (T')
-    end*)
   end
 
   module Get_ancestry = struct
@@ -490,42 +313,6 @@ module Rpcs = struct
       include M
       include Master
     end)
-
-    (* module V2 = struct
-      module T = struct
-        type query =
-          ( Consensus.Data.Consensus_state.Value.Stable.V1.t
-          , State_hash.Stable.V1.t )
-          With_hash.Stable.V1.t
-        [@@deriving bin_io, sexp, version { rpc }]
-
-        type response =
-          ( Mina_block.Stable.V2.t
-          , State_body_hash.Stable.V1.t list * Mina_block.Stable.V2.t )
-          Proof_carrying_data.Stable.V1.t
-          option
-        [@@deriving bin_io, version { rpc }]
-
-        let query_of_caller_model = Fn.id
-
-        let callee_model_of_query = Fn.id
-
-        let response_of_callee_model = ident
-
-        let caller_model_of_response = ident
-      end
-
-      module T' =
-        Perf_histograms.Rpc.Plain.Decorate_bin_io
-          (struct
-            include M
-            include Master
-          end)
-          (T)
-
-      include T'
-      include Register (T')
-    end *)
   end
 
   module Ban_notify = struct
@@ -562,34 +349,6 @@ module Rpcs = struct
       include M
       include Master
     end)
-
-    (* module V1 = struct
-      module T = struct
-        type query = Core.Time.Stable.V1.t
-        [@@deriving bin_io, sexp, version { rpc }]
-
-        type response = unit [@@deriving bin_io, version { rpc }]
-
-        let query_of_caller_model = Fn.id
-
-        let callee_model_of_query = Fn.id
-
-        let response_of_callee_model = Fn.id
-
-        let caller_model_of_response = Fn.id
-      end
-
-      module T' =
-        Perf_histograms.Rpc.Plain.Decorate_bin_io
-          (struct
-            include M
-            include Master
-          end)
-          (T)
-
-      include T'
-      include Register (T')
-    end *)
   end
 
   module Get_best_tip = struct
@@ -629,38 +388,6 @@ module Rpcs = struct
       include M
       include Master
     end)
-
-    (* module V2 = struct
-      module T = struct
-        type query = unit [@@deriving bin_io, sexp, version { rpc }]
-
-        type response =
-          ( Mina_block.Stable.V2.t
-          , State_body_hash.Stable.V1.t list * Mina_block.Stable.V2.t )
-          Proof_carrying_data.Stable.V1.t
-          option
-        [@@deriving bin_io, version { rpc }]
-
-        let query_of_caller_model = Fn.id
-
-        let callee_model_of_query = Fn.id
-
-        let response_of_callee_model = ident
-
-        let caller_model_of_response = ident
-      end
-
-      module T' =
-        Perf_histograms.Rpc.Plain.Decorate_bin_io
-          (struct
-            include M
-            include Master
-          end)
-          (T)
-
-      include T'
-      include Register (T')
-    end *)
   end
 
   module Get_node_status = struct
@@ -701,53 +428,6 @@ module Rpcs = struct
 
           let to_latest = Fn.id
         end
-
-        (* module V1 = struct
-          type t =
-            { node_ip_addr : Core.Unix.Inet_addr.Stable.V1.t
-                  [@to_yojson
-                    fun ip_addr -> `String (Unix.Inet_addr.to_string ip_addr)]
-                  [@of_yojson
-                    function
-                    | `String s ->
-                        Ok (Unix.Inet_addr.of_string s)
-                    | _ ->
-                        Error "expected string"]
-            ; node_peer_id : Network_peer.Peer.Id.Stable.V1.t
-                  [@to_yojson fun peer_id -> `String peer_id]
-                  [@of_yojson
-                    function `String s -> Ok s | _ -> Error "expected string"]
-            ; sync_status : Sync_status.Stable.V1.t
-            ; peers : Network_peer.Peer.Stable.V1.t list
-            ; block_producers :
-                Signature_lib.Public_key.Compressed.Stable.V1.t list
-            ; protocol_state_hash : State_hash.Stable.V1.t
-            ; ban_statuses :
-                ( Network_peer.Peer.Stable.V1.t
-                * Trust_system.Peer_status.Stable.V1.t )
-                list
-            ; k_block_hashes_and_timestamps :
-                (State_hash.Stable.V1.t * string) list
-            ; git_commit : string
-            ; uptime_minutes : int
-            }
-          [@@deriving to_yojson, of_yojson]
-
-          let to_latest status : Latest.t =
-            { node_ip_addr = status.node_ip_addr
-            ; node_peer_id = status.node_peer_id
-            ; sync_status = status.sync_status
-            ; peers = status.peers
-            ; block_producers = status.block_producers
-            ; protocol_state_hash = status.protocol_state_hash
-            ; ban_statuses = status.ban_statuses
-            ; k_block_hashes_and_timestamps =
-                status.k_block_hashes_and_timestamps
-            ; git_commit = status.git_commit
-            ; uptime_minutes = status.uptime_minutes
-            ; block_height_opt = None
-            }
-        end*)
       end]
     end
 
@@ -790,82 +470,6 @@ module Rpcs = struct
       include M
       include Master
     end)
-
-    (* module V2 = struct
-      module T = struct
-        type query = unit [@@deriving bin_io, sexp, version { rpc }]
-
-        type response = Node_status.Stable.V2.t Core_kernel.Or_error.Stable.V1.t
-        [@@deriving bin_io, version { rpc }]
-
-        let query_of_caller_model = Fn.id
-
-        let callee_model_of_query = Fn.id
-
-        let response_of_callee_model = Fn.id
-
-        let caller_model_of_response = Fn.id
-      end
-
-      module T' =
-        Perf_histograms.Rpc.Plain.Decorate_bin_io
-          (struct
-            include M
-            include Master
-          end)
-          (T)
-
-      include T'
-      include Register (T')
-    end *)
-
-   (* module V1 = struct
-      module T = struct
-        type query = unit [@@deriving bin_io, sexp, version { rpc }]
-
-        type response = Node_status.Stable.V1.t Core_kernel.Or_error.Stable.V1.t
-        [@@deriving bin_io, version { rpc }]
-
-        let query_of_caller_model = Fn.id
-
-        let callee_model_of_query = Fn.id
-
-        let response_of_callee_model = function
-          | Error err ->
-              Error err
-          | Ok (status : Node_status.Stable.Latest.t) ->
-              Ok
-                { Node_status.Stable.V1.node_ip_addr = status.node_ip_addr
-                ; node_peer_id = status.node_peer_id
-                ; sync_status = status.sync_status
-                ; peers = status.peers
-                ; block_producers = status.block_producers
-                ; protocol_state_hash = status.protocol_state_hash
-                ; ban_statuses = status.ban_statuses
-                ; k_block_hashes_and_timestamps =
-                    status.k_block_hashes_and_timestamps
-                ; git_commit = status.git_commit
-                ; uptime_minutes = status.uptime_minutes
-                }
-
-        let caller_model_of_response = function
-          | Error err ->
-              Error err
-          | Ok (status : Node_status.Stable.V1.t) ->
-              Ok (Node_status.Stable.V1.to_latest status)
-      end
-
-      module T' =
-        Perf_histograms.Rpc.Plain.Decorate_bin_io
-          (struct
-            include M
-            include Master
-          end)
-          (T)
-
-      include T'
-      include Register (T')
-    end *)
   end
 
   type ('query, 'response) rpc =
