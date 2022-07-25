@@ -121,7 +121,7 @@ let%test_unit "ring-signature snapp tx with 3 parties" =
       Ledger.with_ledger ~depth:ledger_depth ~f:(fun ledger ->
           Init_ledger.init (module Ledger.Ledger_inner) init_ledger ledger ;
           let spec = List.hd_exn specs in
-          let tag, _, (module P), Pickles.Provers.[ ringsig_prover; _ ] =
+          let tag, _, (module _), Pickles.Provers.[ ringsig_prover; _ ] =
             Pickles.compile ~cache:Cache_dir.cache
               (module Zkapp_statement.Checked)
               (module Zkapp_statement)
