@@ -2,7 +2,7 @@
  (name transition_frontier_controller)
  (public_name transition_frontier_controller)
  (instrumentation (backend bisect_ppx))
- (preprocess (pps ppx_version ppx_coda))
+ (preprocess (pps ppx_version ppx_coda ppx_jane))
  (libraries
    ;; opam libraries
    base
@@ -34,4 +34,6 @@
    non_empty_list
    mina_net2
    bootstrap_controller
+   staged_ledger_diff
+mina_state
 ))

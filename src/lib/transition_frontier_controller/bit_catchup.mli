@@ -19,4 +19,4 @@ val run :
        , 'a
        , unit )
        Pipe_lib.Strict_pipe.Writer.t
-  -> unit
+  -> unit Async_kernel.Deferred.t
