@@ -211,7 +211,7 @@ module Node = struct
     {|
       query ($max_length: Int) @encoders(module: "Encoders"){
         bestChain (maxLength: $max_length) {
-          stateHash
+          stateHash @ppxCustom(module: "Graphql_lib.Scalars.String_json")
           commandTransactionCount
           creatorAccount {
             publicKey @ppxCustom(module: "Graphql_lib.Scalars.JSON")
@@ -245,7 +245,7 @@ module Node = struct
                     locked
                     total
                   }
-          delegate @ppxCustom(module: "Graphql_lib.Scalars.JSON")
+          delegate
           nonce
           permissions { editSequenceState
                         editState
@@ -263,10 +263,10 @@ module Node = struct
           zkappState
           zkappUri
           timing { cliffTime @ppxCustom(module: "Graphql_lib.Scalars.JSON")
-                   cliffAmount @ppxCustom(module: "Graphql_lib.Scalars.JSON")
+                   cliffAmount
                    vestingPeriod @ppxCustom(module: "Graphql_lib.Scalars.JSON")
-                   vestingIncrement @ppxCustom(module: "Graphql_lib.Scalars.JSON")
-                   initialMinimumBalance @ppxCustom(module: "Graphql_lib.Scalars.JSON")
+                   vestingIncrement
+                   initialMinimumBalance
                  }
           token
           tokenSymbol
@@ -435,17 +435,14 @@ module Node = struct
     | Some acc ->
         return
           { nonce =
-              acc.nonce
-              |> Option.value_exn
-                   ~message:
-                     "the nonce from get_balance is None, which should be \
-                      impossible"
-              |> Mina_numbers.Account_nonce.of_string
-          ; total_balance = Currency.Balance.of_uint64 acc.balance.total
-          ; liquid_balance_opt =
-              Option.map ~f:Currency.Balance.of_uint64 acc.balance.liquid
-          ; locked_balance_opt =
-              Option.map ~f:Currency.Balance.of_uint64 acc.balance.locked
+              Option.value_exn
+                ~message:
+                  "the nonce from get_balance is None, which should be \
+                   impossible"
+                acc.nonce
+          ; total_balance = acc.balance.total
+          ; liquid_balance_opt = acc.balance.liquid
+          ; locked_balance_opt = acc.balance.locked
           }
 
   let must_get_account_data ~logger t ~account_id =
@@ -532,14 +529,8 @@ module Node = struct
         in
         let%bind delegate =
           match account.delegate with
-          | Some (`String s) ->
-              return
-                (Set (Signature_lib.Public_key.Compressed.of_base58_check_exn s))
-          | Some json ->
-              fail
-                (Error.of_string
-                   (sprintf "Expected string encoding of delegate, got %s"
-                      (Yojson.Basic.to_string json) ) )
+          | Some s ->
+              return (Set s)
           | None ->
               fail (Error.of_string "Expected delegate in account")
         in
@@ -599,15 +590,7 @@ module Node = struct
           | None, None, None, None, None ->
               return @@ Keep
           | Some amt, Some tm, Some period, Some incr, Some bal ->
-              let%bind cliff_amount =
-                match amt with
-                | `String s ->
-                    return @@ Currency.Amount.of_string s
-                | _ ->
-                    fail
-                      (Error.of_string
-                         "Expected string for cliff amount in account timing" )
-              in
+              let cliff_amount = amt in
               let%bind cliff_time =
                 match tm with
                 | `String s ->
@@ -626,26 +609,8 @@ module Node = struct
                       (Error.of_string
                          "Expected string for vesting period in account timing" )
               in
-              let%bind vesting_increment =
-                match incr with
-                | `String s ->
-                    return @@ Currency.Amount.of_string s
-                | _ ->
-                    fail
-                      (Error.of_string
-                         "Expected string for vesting increment in account \
-                          timing" )
-              in
-              let%bind initial_minimum_balance =
-                match bal with
-                | `String s ->
-                    return @@ Currency.Balance.of_string s
-                | _ ->
-                    fail
-                      (Error.of_string
-                         "Expected string for vesting increment in account \
-                          timing" )
-              in
+              let vesting_increment = incr in
+              let initial_minimum_balance = bal in
               return
                 (Set
                    ( { initial_minimum_balance
@@ -661,7 +626,7 @@ module Node = struct
         let%bind voting_for =
           match account.votingFor with
           | Some s ->
-              return @@ Set (Mina_base.State_hash.of_base58_check_exn s)
+              return @@ Set s
           | None ->
               fail (Error.of_string "Expected voting-for state hash in account")
         in
