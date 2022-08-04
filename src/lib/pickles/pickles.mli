@@ -456,3 +456,12 @@ val compile :
          * ('max_proofs_verified, 'max_proofs_verified) Proof.t )
          Deferred.t )
        H3_2.T(Prover).t
+
+module Graphql_scalars : sig
+  open Graphql_basic_scalars
+
+  module VerificationKey :
+    Json_intf with type t = Side_loaded.Verification_key.t
+
+  module VerificationKeyHash : Json_intf with type t = Backend.Tick.Field.t
+end

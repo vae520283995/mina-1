@@ -925,6 +925,28 @@ module Side_loaded = struct
           (Domain.log2_size (Common.wrap_domains ~proofs_verified:i).h) )
 end
 
+module Graphql_scalars = struct
+  open Graphql_basic_scalars
+
+  module VerificationKey =
+    Make_scalar_using_base58_check
+      (Side_loaded.Verification_key)
+      (struct
+        let name = "VerificationKey"
+
+        let doc = "verification key in Base58Check format"
+      end)
+
+  module VerificationKeyHash =
+    Make_scalar_using_to_string
+      (Backend.Tick.Field)
+      (struct
+        let name = "VerificationKeyHash"
+
+        let doc = "Hash of verification key"
+      end)
+end
+
 let compile_promise :
     type var value a_var a_value ret_var ret_value auxiliary_var auxiliary_value prev_varss prev_valuess prev_ret_varss prev_ret_valuess widthss heightss max_proofs_verified branches.
        ?self:(var, value, max_proofs_verified, branches) Tag.t

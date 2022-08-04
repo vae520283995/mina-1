@@ -513,9 +513,7 @@ module Node = struct
           match account.zkappState with
           | Some strs ->
               let fields =
-                Array.to_list strs
-                |> Base.List.map ~f:(fun s ->
-                       Set (Pickles.Backend.Tick.Field.of_string s) )
+                Array.to_list strs |> Base.List.map ~f:(fun s -> Set s)
               in
               return (Mina_base.Zkapp_state.V.of_list_exn fields)
           | None ->
@@ -537,11 +535,8 @@ module Node = struct
         let%bind verification_key =
           match account.verificationKey with
           | Some vk_obj ->
-              let data =
-                Pickles.Side_loaded.Verification_key.of_base58_check_exn
-                  vk_obj.verificationKey
-              in
-              let hash = Pickles.Backend.Tick.Field.of_string vk_obj.hash in
+              let data = vk_obj.verificationKey in
+              let hash = vk_obj.hash in
               return (Set ({ data; hash } : _ With_hash.t))
           | None ->
               fail
@@ -684,7 +679,7 @@ module Node = struct
     let return_obj = sent_payment_obj.sendPayment.payment in
     let res =
       { id = return_obj.id
-      ; hash = Transaction_hash.of_base58_check_exn return_obj.hash
+      ; hash = return_obj.hash
       ; nonce = Mina_numbers.Account_nonce.of_int return_obj.nonce
       }
     in
@@ -730,18 +725,16 @@ module Node = struct
                   | None ->
                       acc
                   | Some f ->
-                      ( Int.of_string (Option.value_exn f.index)
-                      , Array.map
-                          ~f:(fun s ->
-                            Mina_base.Transaction_status.Failure.of_string s
-                            |> Result.ok_or_failwith )
-                          f.failures
-                        |> Array.to_list |> List.rev )
+                      ( Option.value_exn f.index
+                      , f.failures |> Array.to_list |> List.rev )
                       :: acc )
             |> Mina_base.Transaction_status.Failure.Collection.Display.to_yojson
             |> Yojson.Safe.to_string )
     in
-    let zkapp_id = sent_zkapp_obj.internalSendZkapp.zkapp.id in
+    let zkapp_id =
+      Mina_base.Parties.to_base58_check
+        sent_zkapp_obj.internalSendZkapp.zkapp.id
+    in
     [%log info] "Sent zkapp" ~metadata:[ ("zkapp_id", `String zkapp_id) ] ;
     return zkapp_id
 
@@ -779,7 +772,7 @@ module Node = struct
     let return_obj = result_obj.sendDelegation.delegation in
     let res =
       { id = return_obj.id
-      ; hash = Transaction_hash.of_base58_check_exn return_obj.hash
+      ; hash = return_obj.hash
       ; nonce = Mina_numbers.Account_nonce.of_int return_obj.nonce
       }
     in
@@ -823,7 +816,7 @@ module Node = struct
     let return_obj = sent_payment_obj.sendPayment.payment in
     let res =
       { id = return_obj.id
-      ; hash = Transaction_hash.of_base58_check_exn return_obj.hash
+      ; hash = return_obj.hash
       ; nonce = Mina_numbers.Account_nonce.of_int return_obj.nonce
       }
     in

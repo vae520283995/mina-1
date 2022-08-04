@@ -35,6 +35,7 @@
    trust_system
    with_hash
    data_hash_lib
+   data_hash_lib_unix
    staged_ledger
    genesis_constants
    pipe_lib
@@ -72,6 +73,7 @@
    base58_check
    mina_net2
    snark_params
+   snark_params_unix
    rosetta_lib
    random_oracle
    coda_genesis_proof
@@ -80,6 +82,15 @@
    mina_base.import
    pickles.backend
    pickles_types
+
+   pickles_base
+   kimchi_backend
+   kimchi_types
+   kimchi_bindings
+   kimchi_backend_common
+   kimchi_pasta
+   pasta_bindings
+
    graphql
    fields_derivers.graphql
    o1trace

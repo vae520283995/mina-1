@@ -5516,6 +5516,16 @@
           "possibleTypes": null
         },
         {
+          "kind": "SCALAR",
+          "name": "VrfOutputTruncated",
+          "description": "truncated vrf output",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "OBJECT",
           "name": "VrfThreshold",
           "description":
@@ -5558,6 +5568,16 @@
           ],
           "inputFields": null,
           "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "VrfScalar",
+          "description": "consensus vrf scalar",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
@@ -5664,7 +5684,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "VrfScalar",
                   "ofType": null
                 }
               },
@@ -5680,7 +5700,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "VrfScalar",
                   "ofType": null
                 }
               },
@@ -5729,7 +5749,11 @@
               "description":
                 "The vrf output derived from the evaluation witness. If null, the vrf witness was invalid.",
               "args": [],
-              "type": { "kind": "SCALAR", "name": "String", "ofType": null },
+              "type": {
+                "kind": "SCALAR",
+                "name": "VrfOutputTruncated",
+                "ofType": null
+              },
               "isDeprecated": false,
               "deprecationReason": null
             },
@@ -6279,7 +6303,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "InetAddr",
                   "ofType": null
                 }
               },
@@ -6322,7 +6346,7 @@
               "name": "bannedStatus",
               "description": "Banned status",
               "args": [],
-              "type": { "kind": "SCALAR", "name": "String", "ofType": null },
+              "type": { "kind": "SCALAR", "name": "Time", "ofType": null },
               "isDeprecated": false,
               "deprecationReason": null
             }
@@ -6494,6 +6518,16 @@
           "possibleTypes": null
         },
         {
+          "kind": "SCALAR",
+          "name": "Index",
+          "description": "ocaml integer as a string",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "OBJECT",
           "name": "PartiesFailureReason",
           "description": null,
@@ -6502,7 +6536,7 @@
               "name": "index",
               "description": "List index of the party that failed",
               "args": [],
-              "type": { "kind": "SCALAR", "name": "String", "ofType": null },
+              "type": { "kind": "SCALAR", "name": "Index", "ofType": null },
               "isDeprecated": false,
               "deprecationReason": null
             },
@@ -6522,7 +6556,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "SCALAR",
-                      "name": "String",
+                      "name": "TransactionStatusFailure",
                       "ofType": null
                     }
                   }
@@ -7571,16 +7605,6 @@
           "possibleTypes": null
         },
         {
-          "kind": "SCALAR",
-          "name": "VerificationKey",
-          "description": "Verification key in Base58Check format",
-          "fields": null,
-          "inputFields": null,
-          "interfaces": null,
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
           "kind": "OBJECT",
           "name": "VerificationKeyWithHash",
           "description": null,
@@ -8194,6 +8218,16 @@
           "possibleTypes": null
         },
         {
+          "kind": "SCALAR",
+          "name": "PartiesBase58",
+          "description": "A Base58Check string representing the command",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "OBJECT",
           "name": "ZkappCommand",
           "description": null,
@@ -8205,7 +8239,11 @@
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
-                "ofType": { "kind": "SCALAR", "name": "ID", "ofType": null }
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "PartiesBase58",
+                  "ofType": null
+                }
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -8219,7 +8257,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "TransactionHash",
                   "ofType": null
                 }
               },
@@ -8557,7 +8595,11 @@
               "description":
                 "null is no failure or status unknown, reason for failure otherwise.",
               "args": [],
-              "type": { "kind": "SCALAR", "name": "String", "ofType": null },
+              "type": {
+                "kind": "SCALAR",
+                "name": "TransactionStatusFailure",
+                "ofType": null
+              },
               "isDeprecated": false,
               "deprecationReason": null
             }
@@ -8566,6 +8608,16 @@
           "interfaces": [
             { "kind": "INTERFACE", "name": "UserCommand", "ofType": null }
           ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "TransactionStatusFailure",
+          "description": "transaction status failure",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
@@ -8923,7 +8975,11 @@
               "description":
                 "null is no failure or status unknown, reason for failure otherwise.",
               "args": [],
-              "type": { "kind": "SCALAR", "name": "String", "ofType": null },
+              "type": {
+                "kind": "SCALAR",
+                "name": "TransactionStatusFailure",
+                "ofType": null
+              },
               "isDeprecated": false,
               "deprecationReason": null
             }
@@ -8961,7 +9017,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "TransactionHash",
                   "ofType": null
                 }
               },
@@ -9226,7 +9282,11 @@
               "description":
                 "null is no failure, reason for failure otherwise.",
               "args": [],
-              "type": { "kind": "SCALAR", "name": "String", "ofType": null },
+              "type": {
+                "kind": "SCALAR",
+                "name": "TransactionStatusFailure",
+                "ofType": null
+              },
               "isDeprecated": false,
               "deprecationReason": null
             }
@@ -10024,6 +10084,17 @@
           "possibleTypes": null
         },
         {
+          "kind": "SCALAR",
+          "name": "StateHashAsDecimal",
+          "description":
+            "Experimental: Bigint field-element representation of stateHash",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "OBJECT",
           "name": "Block",
           "description": null,
@@ -10103,7 +10174,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "StateHashAsDecimal",
                   "ofType": null
                 }
               },
@@ -10311,6 +10382,16 @@
           "possibleTypes": null
         },
         {
+          "kind": "SCALAR",
+          "name": "InetAddr",
+          "description": "network address",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "OBJECT",
           "name": "NetworkPeerPayload",
           "description": null,
@@ -10340,7 +10421,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "InetAddr",
                   "ofType": null
                 }
               },
@@ -10451,7 +10532,11 @@
               "name": "left",
               "description": null,
               "args": [],
-              "type": { "kind": "SCALAR", "name": "String", "ofType": null },
+              "type": {
+                "kind": "SCALAR",
+                "name": "FieldElem",
+                "ofType": null
+              },
               "isDeprecated": false,
               "deprecationReason": null
             },
@@ -10459,13 +10544,47 @@
               "name": "right",
               "description": null,
               "args": [],
-              "type": { "kind": "SCALAR", "name": "String", "ofType": null },
+              "type": {
+                "kind": "SCALAR",
+                "name": "FieldElem",
+                "ofType": null
+              },
               "isDeprecated": false,
               "deprecationReason": null
             }
           ],
           "inputFields": null,
           "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "SequenceEvent",
+          "description": "sequence event",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "VerificationKeyHash",
+          "description": "Hash of verification key",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "VerificationKey",
+          "description": "verification key in Base58Check format",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
@@ -10483,7 +10602,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "VerificationKey",
                   "ofType": null
                 }
               },
@@ -10499,7 +10618,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "VerificationKeyHash",
                   "ofType": null
                 }
               },
@@ -10741,6 +10860,16 @@
           ],
           "inputFields": null,
           "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "FieldElem",
+          "description": "field element",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
@@ -11271,7 +11400,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "SCALAR",
-                    "name": "String",
+                    "name": "FieldElem",
                     "ofType": null
                   }
                 }
@@ -11324,7 +11453,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "SCALAR",
-                    "name": "String",
+                    "name": "SequenceEvent",
                     "ofType": null
                   }
                 }
@@ -11337,7 +11466,11 @@
               "description":
                 "The base58Check-encoded hash of this account to bootstrap the merklePath",
               "args": [],
-              "type": { "kind": "SCALAR", "name": "String", "ofType": null },
+              "type": {
+                "kind": "SCALAR",
+                "name": "FieldElem",
+                "ofType": null
+              },
               "isDeprecated": false,
               "deprecationReason": null
             },

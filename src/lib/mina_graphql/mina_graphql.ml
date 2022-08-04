@@ -358,23 +358,16 @@ module Types = struct
 
   let merkle_path_element :
       (_, [ `Left of Zkapp_basic.F.t | `Right of Zkapp_basic.F.t ] option) typ =
+    let field_elem = Mina_base_unix.Graphql_scalars.FieldElem.typ () in
     obj "MerklePathElement" ~fields:(fun _ ->
-        [ field "left" ~typ:string
+        [ field "left" ~typ:field_elem
             ~args:Arg.[]
             ~resolve:(fun _ x ->
-              match x with
-              | `Left h ->
-                  Some (Zkapp_basic.F.to_string h)
-              | `Right _ ->
-                  None )
-        ; field "right" ~typ:string
+              match x with `Left h -> Some h | `Right _ -> None )
+        ; field "right" ~typ:field_elem
             ~args:Arg.[]
             ~resolve:(fun _ x ->
-              match x with
-              | `Left _ ->
-                  None
-              | `Right h ->
-                  Some (Zkapp_basic.F.to_string h) )
+              match x with `Left _ -> None | `Right h -> Some h )
         ] )
 
   module DaemonStatus = struct
@@ -1118,14 +1111,14 @@ module Types = struct
         ~fields:(fun _ ->
           [ field "verificationKey"
               ~doc:"Verification key in Base58Check format"
-              ~typ:(non_null string)
+              ~typ:(non_null @@ Pickles.Graphql_scalars.VerificationKey.typ ())
               ~args:Arg.[]
-              ~resolve:(fun _ (vk : _ With_hash.t) ->
-                Pickles.Side_loaded.Verification_key.to_base58_check vk.data )
-          ; field "hash" ~doc:"Hash of verification key" ~typ:(non_null string)
+              ~resolve:(fun _ (vk : _ With_hash.t) -> vk.data)
+          ; field "hash" ~doc:"Hash of verification key"
+              ~typ:
+                (non_null @@ Pickles.Graphql_scalars.VerificationKeyHash.typ ())
               ~args:Arg.[]
-              ~resolve:(fun _ (vk : _ With_hash.t) ->
-                Pickles.Backend.Tick.Field.to_string vk.hash )
+              ~resolve:(fun _ (vk : _ With_hash.t) -> vk.hash)
           ] )
 
     let rec account =
@@ -1359,7 +1352,9 @@ module Types = struct
                  ~resolve:(fun _ { account; _ } ->
                    account.Account.Poly.zkapp_uri )
              ; field "zkappState"
-                 ~typ:(list @@ non_null string)
+                 ~typ:
+                   ( list @@ non_null
+                   @@ Mina_base_unix.Graphql_scalars.FieldElem.typ () )
                  ~doc:
                    "The 8 field elements comprising the zkApp state associated \
                     with this account encoded as bignum strings"
@@ -1367,8 +1362,7 @@ module Types = struct
                  ~resolve:(fun _ { account; _ } ->
                    account.Account.Poly.zkapp
                    |> Option.map ~f:(fun zkapp_account ->
-                          zkapp_account.app_state |> Zkapp_state.V.to_list
-                          |> List.map ~f:Zkapp_basic.F.to_string ) )
+                          zkapp_account.app_state |> Zkapp_state.V.to_list ) )
              ; field "permissions" ~typ:account_permissions
                  ~doc:"Permissions for updating certain fields of this account"
                  ~args:Arg.[]
@@ -1387,25 +1381,27 @@ module Types = struct
                      ~f:(fun zkapp_account -> zkapp_account.verification_key) )
              ; field "sequenceEvents"
                  ~doc:"Sequence events associated with this account"
-                 ~typ:(list (non_null string))
+                 ~typ:
+                   (list
+                      ( non_null
+                      @@ Snark_params_unix.Graphql_scalars.SequenceEvent.typ ()
+                      ) )
                  ~args:Arg.[]
                  ~resolve:(fun _ { account; _ } ->
                    Option.map account.Account.Poly.zkapp
                      ~f:(fun zkapp_account ->
-                       List.map ~f:Snark_params.Tick.Field.to_string
-                         (Pickles_types.Vector.to_list
-                            zkapp_account.sequence_state ) ) )
+                       Pickles_types.Vector.to_list zkapp_account.sequence_state )
+                   )
              ; field "leafHash"
                  ~doc:
                    "The base58Check-encoded hash of this account to bootstrap \
                     the merklePath"
-                 ~typ:string
+                 ~typ:(Mina_base_unix.Graphql_scalars.FieldElem.typ ())
                  ~args:Arg.[]
                  ~resolve:(fun _ { account; _ } ->
                    let open Option.Let_syntax in
                    let%map account = Partial_account.to_full_account account in
-                   Zkapp_basic.F.to_string
-                     (Ledger_hash.of_digest (Account.digest account)) )
+                   Ledger_hash.of_digest (Account.digest account) )
              ; field "merklePath"
                  ~doc:
                    "Merkle path is a list of path elements that are either the \
@@ -1433,14 +1429,16 @@ module Types = struct
 
     let failure_reasons =
       obj "PartiesFailureReason" ~fields:(fun _ ->
-          [ field "index" ~typ:string ~args:[]
-              ~doc:"List index of the party that failed"
-              ~resolve:(fun _ (index, _) -> Some (Int.to_string index))
+          [ field "index" ~typ:(Graphql_basic_scalars.Index.typ ())
+              ~args:[] ~doc:"List index of the party that failed"
+              ~resolve:(fun _ (index, _) -> Some index)
           ; field "failures"
-              ~typ:(non_null @@ list @@ non_null @@ string)
+              ~typ:
+                ( non_null @@ list @@ non_null
+                @@ Mina_base_unix.Graphql_scalars.TransactionStatusFailure.typ
+                     () )
               ~args:[] ~doc:"Failure reason for the party or any nested parties"
-              ~resolve:(fun _ (_, failures) ->
-                List.map failures ~f:Transaction_status.Failure.to_string )
+              ~resolve:(fun _ (_, failures) -> failures)
           ] )
   end
 
@@ -1469,7 +1467,7 @@ module Types = struct
       interface "UserCommand" ~doc:"Common interface for user commands"
         ~fields:(fun _ ->
           [ abstract_field "id" ~typ:(non_null guid) ~args:[]
-          ; abstract_field "hash" ~typ:(non_null string) ~args:[]
+          ; abstract_field "hash" ~typ:(non_null transaction_hash) ~args:[]
           ; abstract_field "kind" ~typ:(non_null kind) ~args:[]
               ~doc:"String describing the kind of user command"
           ; abstract_field "nonce" ~typ:(non_null int) ~args:[]
@@ -1520,8 +1518,10 @@ module Types = struct
               ~typ:(non_null AccountObj.account)
               ~args:[] ~doc:"Account of the receiver"
               ~deprecated:(Deprecated (Some "use receiver field instead"))
-          ; abstract_field "failureReason" ~typ:string ~args:[]
-              ~doc:"null is no failure, reason for failure otherwise."
+          ; abstract_field "failureReason"
+              ~typ:
+                (Mina_base_unix.Graphql_scalars.TransactionStatusFailure.typ ())
+              ~args:[] ~doc:"null is no failure, reason for failure otherwise."
           ] )
 
     module With_status = struct
@@ -1638,7 +1638,9 @@ module Types = struct
           ~resolve:(fun { ctx = coda; _ } cmd ->
             AccountObj.get_best_ledger_account coda
             @@ Signed_command.receiver cmd.With_hash.data )
-      ; field "failureReason" ~typ:string ~args:[]
+      ; field "failureReason"
+          ~typ:(Mina_base_unix.Graphql_scalars.TransactionStatusFailure.typ ())
+          ~args:[]
           ~doc:
             "null is no failure or status unknown, reason for failure \
              otherwise." ~resolve:(fun _ uc ->
@@ -1646,8 +1648,7 @@ module Types = struct
             | Applied | Enqueued ->
                 None
             | Included_but_failed failures ->
-                List.concat failures |> List.hd
-                |> Option.map ~f:Transaction_status.Failure.to_string )
+                List.concat failures |> List.hd )
       ]
 
     let payment =
@@ -1702,12 +1703,14 @@ module Types = struct
       obj "ZkappCommand" ~fields:(fun _ ->
           [ field_no_status "id"
               ~doc:"A Base58Check string representing the command"
-              ~typ:(non_null guid) ~args:[] ~resolve:(fun _ parties ->
-                Parties.to_base58_check parties.With_hash.data )
+              ~typ:
+                (non_null @@ Mina_base_unix.Graphql_scalars.PartiesBase58.typ ())
+              ~args:[]
+              ~resolve:(fun _ parties -> parties.With_hash.data)
           ; field_no_status "hash"
               ~doc:"A cryptographic hash of the zkApp command"
-              ~typ:(non_null string) ~args:[] ~resolve:(fun _ parties ->
-                Transaction_hash.to_base58_check parties.With_hash.hash )
+              ~typ:(non_null transaction_hash) ~args:[]
+              ~resolve:(fun _ parties -> parties.With_hash.hash)
           ; field_no_status "parties"
               ~typ:(Parties.typ () |> conv)
               ~args:Arg.[]
@@ -1835,12 +1838,14 @@ module Types = struct
             ~doc:"Base58Check-encoded hash of the state after this block"
             ~args:Arg.[]
             ~resolve:(fun _ { With_hash.hash; _ } -> hash)
-        ; field "stateHashField" ~typ:(non_null string)
+        ; field "stateHashField"
+            ~typ:
+              ( non_null
+              @@ Data_hash_lib_unix.Graphql_scalars.StateHashAsDecimal.typ () )
             ~doc:
               "Experimental: Bigint field-element representation of stateHash"
             ~args:Arg.[]
-            ~resolve:(fun _ { With_hash.hash; _ } ->
-              State_hash.to_decimal_string hash )
+            ~resolve:(fun _ { With_hash.hash; _ } -> hash)
         ; field "protocolState" ~typ:(non_null protocol_state)
             ~args:Arg.[]
             ~resolve:(fun _ { With_hash.data; With_hash.hash; _ } ->
@@ -1890,10 +1895,9 @@ module Types = struct
               ~args:Arg.[]
               ~resolve:(fun _ peer -> peer.Network_peer.Peer.peer_id)
           ; field "host" ~doc:"IP address of the remote host"
-              ~typ:(non_null string)
+              ~typ:(non_null @@ Graphql_basic_scalars.InetAddr.typ ())
               ~args:Arg.[]
-              ~resolve:(fun _ peer ->
-                Unix.Inet_addr.to_string peer.Network_peer.Peer.host )
+              ~resolve:(fun _ peer -> peer.Network_peer.Peer.host)
           ; field "libp2pPort" ~typ:(non_null int)
               ~args:Arg.[]
               ~resolve:(fun _ peer -> peer.Network_peer.Peer.libp2p_port)
@@ -1975,29 +1979,31 @@ module Types = struct
               ~resolve:(fun _ _ -> true)
           ] )
 
-    let string_of_banned_status = function
+    let time_of_banned_status = function
       | Trust_system.Banned_status.Unbanned ->
           None
       | Banned_until tm ->
-          Some (Time.to_string tm)
+          Some tm
 
     let trust_status =
       obj "TrustStatusPayload" ~fields:(fun _ ->
           let open Trust_system.Peer_status in
-          [ field "ipAddr" ~typ:(non_null string) ~doc:"IP address"
+          [ field "ipAddr"
+              ~typ:(non_null @@ Graphql_basic_scalars.InetAddr.typ ())
+              ~doc:"IP address"
               ~args:Arg.[]
-              ~resolve:(fun _ (peer, _) ->
-                Unix.Inet_addr.to_string peer.Network_peer.Peer.host )
+              ~resolve:(fun _ (peer, _) -> peer.Network_peer.Peer.host)
           ; field "peerId" ~typ:(non_null string) ~doc:"libp2p Peer ID"
               ~args:Arg.[]
               ~resolve:(fun _ (peer, __) -> peer.Network_peer.Peer.peer_id)
           ; field "trust" ~typ:(non_null float) ~doc:"Trust score"
               ~args:Arg.[]
               ~resolve:(fun _ (_, { trust; _ }) -> trust)
-          ; field "bannedStatus" ~typ:string ~doc:"Banned status"
+          ; field "bannedStatus"
+              ~typ:(Graphql_basic_scalars.Time.typ ())
+              ~doc:"Banned status"
               ~args:Arg.[]
-              ~resolve:(fun _ (_, { banned; _ }) ->
-                string_of_banned_status banned )
+              ~resolve:(fun _ (_, { banned; _ }) -> time_of_banned_status banned)
           ] )
 
     let send_payment =
@@ -2969,6 +2975,7 @@ module Types = struct
   let vrf_evaluation : ('context, Consensus_vrf.Layout.Evaluation.t option) typ
       =
     let open Consensus_vrf.Layout.Evaluation in
+    let vrf_scalar = Graphql_lib.Scalars.VrfScalar.typ () in
     obj "VrfEvaluation"
       ~doc:"A witness to a vrf evaluation, which may be externally verified"
       ~fields:(fun _ ->
@@ -2978,12 +2985,12 @@ module Types = struct
         ; field "publicKey" ~typ:(non_null public_key)
             ~args:Arg.[]
             ~resolve:(fun _ { public_key; _ } -> Public_key.compress public_key)
-        ; field "c" ~typ:(non_null string)
+        ; field "c" ~typ:(non_null vrf_scalar)
             ~args:Arg.[]
-            ~resolve:(fun _ { c; _ } -> Consensus_vrf.Scalar.to_string c)
-        ; field "s" ~typ:(non_null string)
+            ~resolve:(fun _ { c; _ } -> c)
+        ; field "s" ~typ:(non_null vrf_scalar)
             ~args:Arg.[]
-            ~resolve:(fun _ { s; _ } -> Consensus_vrf.Scalar.to_string s)
+            ~resolve:(fun _ { s; _ } -> s)
         ; field "scaledMessageHash"
             ~typ:(non_null (list (non_null string)))
             ~doc:"A group element represented as 2 field elements"
@@ -2993,26 +3000,23 @@ module Types = struct
         ; field "vrfThreshold" ~typ:vrf_threshold
             ~args:Arg.[]
             ~resolve:(fun _ { vrf_threshold; _ } -> vrf_threshold)
-        ; field "vrfOutput" ~typ:string
+        ; field "vrfOutput"
+            ~typ:(Graphql_lib.Scalars.VrfOutputTruncated.typ ())
             ~doc:
               "The vrf output derived from the evaluation witness. If null, \
                the vrf witness was invalid."
             ~args:Arg.[]
             ~resolve:(fun { ctx = mina; _ } t ->
-              let vrf_opt =
-                match t.vrf_output with
-                | Some vrf ->
-                    Some (Consensus_vrf.Output.Truncated.to_base58_check vrf)
-                | None ->
-                    let constraint_constants =
-                      (Mina_lib.config mina).precomputed_values
-                        .constraint_constants
-                    in
-                    to_vrf ~constraint_constants t
-                    |> Option.map ~f:Consensus_vrf.Output.truncate
-              in
-              Option.map ~f:Consensus_vrf.Output.Truncated.to_base58_check
-                vrf_opt )
+              match t.vrf_output with
+              | Some vrf ->
+                  Some vrf
+              | None ->
+                  let constraint_constants =
+                    (Mina_lib.config mina).precomputed_values
+                      .constraint_constants
+                  in
+                  to_vrf ~constraint_constants t
+                  |> Option.map ~f:Consensus_vrf.Output.truncate )
         ; field "vrfOutputFractional" ~typ:float
             ~doc:
               "The vrf output derived from the evaluation witness, as a \
