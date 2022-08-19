@@ -35,6 +35,8 @@ let hash_signed_command =
 [%%ifdef consensus_mechanism]
 
 let hash_command = Fn.compose digest_string User_command.to_base58_check
+in
+let () = print_endline digest_string
 
 let hash_fee_transfer =
   Fn.compose digest_string Fee_transfer.Single.to_base58_check
