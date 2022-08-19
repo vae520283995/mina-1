@@ -845,7 +845,7 @@ module Hash = struct
         |> Result.bind ~f:Transaction.Signed.of_rendered
         |> env.lift
       in
-      let () = print_endline signed_transaction
+      let () = print_endline (Yojson.Safe.to_string signed_transaction)
       in
       let%bind signer =
         let (`Pk pk) = signed_transaction.command.source in
@@ -859,15 +859,11 @@ module Hash = struct
                       `Public_key_format_not_valid))
         |> Result.map_error ~f:(fun _ -> Errors.create `Malformed_public_key)
         |> env.lift
-      in  
-      let () = print_endline signer
       in
       let%map payload =
         User_command_info.Partial.to_user_command_payload
           ~nonce:signed_transaction.nonce signed_transaction.command
         |> env.lift
-      in  
-      let () = print_endline payload
       in
       let full_command =
         { Signed_command.Poly.payload
