@@ -841,7 +841,7 @@ module Hash = struct
         |> Result.map_error ~f:(fun e -> Errors.create (`Json_parse (Some e)))
         |> Result.bind ~f:Transaction.Signed.of_rendered
         |> env.lift
-        let () = Printf.printf "signed_transaction: %s\n" signed_transaction;;
+      let () = Printf.printf "signed_transaction: %s\n" signed_transaction;;
       in
       let%bind signer =
         let (`Pk pk) = signed_transaction.command.source in
@@ -873,7 +873,7 @@ module Hash = struct
       let hash =
         Transaction_hash.hash_command (User_command.Signed_command full_command)
         |> Transaction_hash.to_base58_check
-        let () = Printf.printf "hash: %s\n" hash;;
+      let () = Printf.printf "hash: %s\n" hash;;
       in
       Transaction_identifier_response.create
         (Transaction_identifier.create hash)
