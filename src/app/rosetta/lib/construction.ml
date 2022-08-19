@@ -835,7 +835,9 @@ module Hash = struct
         try M.return (Yojson.Safe.from_string req.signed_transaction)
         with _ -> M.fail (Errors.create (`Json_parse None))
       in
-      let () = print_endline json
+      let () = print_endline req.signed_transaction
+      in
+      let () = print_endline (Yojson.Safe.to_string json)
       in
       let%bind signed_transaction =
         Transaction.Signed.Rendered.of_yojson json
