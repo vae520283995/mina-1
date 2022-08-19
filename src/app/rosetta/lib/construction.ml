@@ -835,7 +835,7 @@ module Hash = struct
         try M.return (Yojson.Safe.from_string req.signed_transaction)
         with _ -> M.fail (Errors.create (`Json_parse None))
       in
-      let () = print_endline "Hello, World!"
+      let () = print_endline json
       in
       let%bind signed_transaction =
         Transaction.Signed.Rendered.of_yojson json
@@ -843,7 +843,7 @@ module Hash = struct
         |> Result.bind ~f:Transaction.Signed.of_rendered
         |> env.lift
       in
-      let () = Printf.printf "signed_transaction: %s\n" signed_transaction
+      let () = print_endline signed_transaction
       in
       let%bind signer =
         let (`Pk pk) = signed_transaction.command.source in
@@ -858,14 +858,14 @@ module Hash = struct
         |> Result.map_error ~f:(fun _ -> Errors.create `Malformed_public_key)
         |> env.lift
       in  
-      let () = print_endline "Hello, World!"
+      let () = print_endline signer
       in
       let%map payload =
         User_command_info.Partial.to_user_command_payload
           ~nonce:signed_transaction.nonce signed_transaction.command
         |> env.lift
       in  
-      let () = Printf.printf "signpayloader: %s\n" payload
+      let () = print_endline payload
       in
       let full_command =
         { Signed_command.Poly.payload
@@ -873,13 +873,13 @@ module Hash = struct
         ; signer
         }
       in  
-      let () = Printf.printf "full_command: %s\n" full_command
+      let () = print_endline full_command
       in
       let hash =
         Transaction_hash.hash_command (User_command.Signed_command full_command)
         |> Transaction_hash.to_base58_check
       in  
-      let () = Printf.printf "hash: %s\n" hash
+      let () = print_endline hash
       in
       Transaction_identifier_response.create
         (Transaction_identifier.create hash)
