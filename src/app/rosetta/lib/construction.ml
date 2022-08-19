@@ -845,7 +845,7 @@ module Hash = struct
         |> Result.bind ~f:Transaction.Signed.of_rendered
         |> env.lift
       in
-      let () = print_endline (Yojson.Safe.to_string signed_transaction)
+      let () = print_endline (Transaction.Signed.to_string signed_transaction)
       in
       let%bind signer =
         let (`Pk pk) = signed_transaction.command.source in
