@@ -858,7 +858,7 @@ module Hash = struct
         |> Result.map_error ~f:(fun _ -> Errors.create `Malformed_public_key)
         |> env.lift
       in  
-      let () = Printf.printf "signer: %s\n" signer
+      let () = print_endline "Hello, World!"
       in
       let%map payload =
         User_command_info.Partial.to_user_command_payload
