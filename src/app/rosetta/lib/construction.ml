@@ -868,14 +868,10 @@ module Hash = struct
         ; signature = signed_transaction.signature
         ; signer
         }
-      in  
-      let () = print_endline full_command
       in
       let hash =
         Transaction_hash.hash_command (User_command.Signed_command full_command)
         |> Transaction_hash.to_base58_check
-      in  
-      let () = print_endline hash
       in
       Transaction_identifier_response.create
         (Transaction_identifier.create hash)
