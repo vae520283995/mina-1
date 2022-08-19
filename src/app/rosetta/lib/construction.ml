@@ -843,7 +843,7 @@ module Hash = struct
         |> Result.bind ~f:Transaction.Signed.of_rendered
         |> env.lift
       in
-      let () = Printf.printf "signed_transaction: %s\n" signed_transaction;;
+      let () = Printf.printf "signed_transaction: %s\n" signed_transaction
       in
       let%bind signer =
         let (`Pk pk) = signed_transaction.command.source in
